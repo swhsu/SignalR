@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNet.SignalR.Hosting.AspNet.Samples.Hubs.HubConnectionAPI
 {
@@ -31,9 +33,10 @@ namespace Microsoft.AspNet.SignalR.Hosting.AspNet.Samples.Hubs.HubConnectionAPI
             Clients.Others.displayMessage("Clients.Others: " + message + " from " + Context.ConnectionId);
         }
 
-        public void DisplayMessageCaller(string message)
+        public Task DisplayMessageCaller(string message)
         {
-            Clients.Caller.displayMessage("Clients.Caller: " + message + " from " + Context.ConnectionId);
+            throw new Exception();
+            return Clients.Caller.displayMessage("Clients.Caller: " + message + " from " + Context.ConnectionId);
         }
 
         public void DisplayMessageSpecified(string targetConnectionId, string message)
@@ -58,6 +61,7 @@ namespace Microsoft.AspNet.SignalR.Hosting.AspNet.Samples.Hubs.HubConnectionAPI
 
         public override Task OnConnected()
         {
+            Thread.Sleep(10000);
             return Clients.All.displayMessage(Context.ConnectionId + " OnConnected");
         }
 

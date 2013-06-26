@@ -108,7 +108,22 @@ namespace Microsoft.AspNet.SignalR.Client.Transports
 
             }, isLongRunning: true).ContinueWith(task =>
             {
-                if (task.IsFaulted)
+                if (task.IsCanceled)
+                {
+                    if (errorCallback != null)
+                    {
+                        //callbackInvoker.Invoke((cb, ex) => cb(ex), errorCallback, null);
+                    }
+                    else if (reconnecting)
+                    {
+                        // Only raise the error event if we failed to reconnect
+                        connection.OnError(new Exception("Task cancelled"));
+
+                        Reconnect(connection, data, disconnectToken);
+                    }
+                    requestDisposer.Dispose();
+                }
+                else if (task.IsFaulted)
                 {
                     Exception exception = task.Exception.Unwrap();
                     if (!ExceptionHelper.IsRequestAborted(exception))
